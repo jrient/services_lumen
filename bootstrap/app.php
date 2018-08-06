@@ -5,7 +5,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 try {
     (new Dotenv\Dotenv(__DIR__.'/../'))->load();
 } catch (Dotenv\Exception\InvalidPathException $e) {
-    var_dump($e);
+    //
 }
 
 /*
@@ -23,7 +23,7 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
 // $app->withEloquent();
 
@@ -43,10 +43,10 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-//$app->singleton(
-//    Illuminate\Contracts\Console\Kernel::class,
-//    App\Console\Kernel::class
-//);
+$app->singleton(
+    Illuminate\Contracts\Console\Kernel::class,
+    App\Console\Kernel::class
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ $app->singleton(
 */
 
 // $app->middleware([
-//    App\Http\Middleware\ConfOpcache::class
+//    App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
 // $app->routeMiddleware([
@@ -77,7 +77,7 @@ $app->singleton(
 | totally optional, so you are not required to uncomment this line.
 |
 */
-
+$app->register(App\Providers\CalendarServiceProvider::class);
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);

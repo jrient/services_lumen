@@ -15,7 +15,7 @@
 $router->group([
     'prefix' => 'calendar/'
 ], function() use ($router) {
-    $router->get('date', [
+    $router->get('date/{date}', [
         'uses' => 'CalendarController@date'
     ]);
 });

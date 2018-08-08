@@ -14,9 +14,19 @@ class Calendar
 {
     const KEY = '22188226c8b09faa84570c37c8e549bc';
 
-    //根据传入日期返回当天详细信息
-    public function getDayInfo($date)
+    public function dayInfo($date)
     {
+        return DB::table('calendar')
+//            ->select(['date', 'weekday', 'animals_year', 'suit', 'avoid', 'lunar', 'lunar_year', 'holiday_name'])
+            ->where(['date' => $date])
+            ->limit(1)
+            ->first();
+    }
+
+    //根据传入日期返回当天详细信息 从数据源查询
+    public function getDayInfoFromSource($date)
+    {
+        $date = date('Y-n-j', strtotime($date));
         $url = 'http://v.juhe.cn/calendar/day';
         $params = [
             'key' => self::KEY,
@@ -30,8 +40,8 @@ class Calendar
         return false;
     }
 
-    //根据传入的月份返回近期的假期列表
-    public function getHolidayInfo($yearMonth)
+    //根据传入的月份返回近期的假期列表 从数据源查询
+    public function getHolidayInfoFromSource($yearMonth)
     {
         $url = 'http://v.juhe.cn/calendar/month';
         $params = [
@@ -60,12 +70,30 @@ class Calendar
     public function delete($dates)
     {
         return DB::table('calendar')
-            ->where('date', 'in', $dates)
+            ->whereIn('date', $dates)
             ->delete();
     }
 
     public function insert($data)
     {
         return DB::table('calendar')->insert($data);
+    }
+
+    public function formatData($result)
+    {
+        return [
+            'date' => $result['date'],
+            'weekday' => $result['weekday'],
+            'animals_year' => $result['animalsYear'],
+            'suit' => $result['suit'],
+            'avoid' => $result['avoid'],
+            'lunar' => $result['lunar'],
+            'lunar_year' => $result['lunarYear'],
+            'is_holiday' => isset($result['holiday']) ? 1 : 0,
+            'holiday_name' => isset($result['holiday']) ? $result['holiday'] : '',
+            'year' => date('Y', strtotime($result['date'])),
+            'month' => date('n', strtotime($result['date'])),
+            'day' => date('j', strtotime($result['date'])),
+        ];
     }
 }

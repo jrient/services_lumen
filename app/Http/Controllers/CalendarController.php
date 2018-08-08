@@ -4,7 +4,9 @@
  */
 namespace App\Http\Controllers;
 
-use App\Http\Model\Curl;
+use App\Http\Model\Calendar;
+use App\Http\Model\Response;
+use Illuminate\Http\Request;
 
 class CalendarController extends Controller
 {
@@ -12,23 +14,42 @@ class CalendarController extends Controller
 
 
     /**
-     *
      * 查询单个日期信息
+     * @param Request $request
      * @param null $date
-     *
      */
-    public function date($date = null)
+    public function date(Request $request, $date = null)
     {
-        $date = empty($date) ? date('Y-m-d') : date('Y-n-j', strtotime($date));
+        $time = strtotime($date);
+        if (empty($time)) {
+            //失败 请求参数错误
+            Response::json(Response::INVALID_PARAMETER);
+        }
+        $date = date('Y-m-d', $time);
+        $calendar = new Calendar();
+        $result = $calendar->dayInfo($date);
+        $result = json_decode(json_encode($result),true);
 
-        $url = 'http://v.juhe.cn/calendar/day';
+        if (empty($result)) {
+            //回源查询
+            $result = $calendar->getDayInfoFromSource($date);
+            if (empty($result)) {
+                //失败 没有查询到数据
+                Response::json(Response::NO_DATA);
+            }
+            $result = $calendar->formatData($result);
+            $calendar->insert($result);
+        }
 
-        $param = array(
-            'date' => $date,
-            'key' => '22188226c8b09faa84570c37c8e549bc'
-        );
-
-        var_dump(Curl::get($url, $param));
-
+        Response::json(Response::SUCCESS,[
+            'date' => $result['date'],
+            'weekday' => $result['weekday'],
+            'animals_year' => $result['animals_year'],
+            'suit' => $result['suit'],
+            'avoid' => $result['avoid'],
+            'lunar' => $result['lunar'],
+            'lunar_year' => $result['lunar_year'],
+            'holiday' => $result['holiday_name']
+        ]);
     }
 }

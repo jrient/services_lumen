@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 class Calendar extends Command
 {
     //每日限额100 以下用作脚本用
-    const DAILY_NUM = 10;
+    const DAILY_NUM = 90;
 
     public $num = 0;
     public $status = 0; //0未用完 1已用完
@@ -79,7 +79,9 @@ class Calendar extends Command
 
             //新增数据
             echo "新增数据";
-            echo $calendar->insert($insertData);
+            if ($calendar->insert($insertData)) {
+                echo count($insertData);
+            }
             echo "\n";
 
             if ($this->status === 1) {

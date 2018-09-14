@@ -48,6 +48,8 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->configure('wx');
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Model\Calendar;
+use App\Http\Model\Gallery;
 use App\Http\Model\Response;
+use App\Http\Model\Wx;
 use Illuminate\Http\Request;
 use TheSeer\Tokenizer\Exception;
 
@@ -15,12 +17,37 @@ class WxController extends Controller
     {
         $postData = $request->getContent();
         $postObj = simplexml_load_string($postData, 'SimpleXMLElement', LIBXML_NOCDATA);
+        if (empty($postObj)) {
+            return '';
+        }
 
-//        $toUserName = $postData['ToUserName'];
-//        $fromUserName = $postData['FromUserName'];
-//        $msgType = $postData['MsgType'];
-//        $msgId = $postData['MsgId'];
+        $wxModel = new Wx();
+        $GalleryModel = new Gallery();
+        $fromUsername = $postObj->FromUserName;
+        $toUsername = $postObj->ToUserName;
+        $createTime = intval($postObj->CreateTime);
+        $msgType = $postObj->MsgType;
+        $time = time();
 
+        $request = '';
+        if ($msgType === 'text') {
+            // 文本消息处理
+            $content = trim($postObj->Content);
+
+        } elseif ($msgType == 'image') {
+            // 图片处理
+            $picUrl = trim($postObj->PicUrl);
+            $status = $GalleryModel->insert($picUrl, date('Y-m-d H:i:s', $createTime), $fromUsername);
+            if (!empty($picUrl) && $status) {
+                $replyContent = '保存图片成功';
+                $request = $wxModel->buildTextMsg($fromUsername, $toUsername, $time, $replyContent);
+            }
+        } else {
+
+        }
+
+        echo $request;
+        exit;
     }
 
     /**

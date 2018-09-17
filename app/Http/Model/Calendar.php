@@ -12,7 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class Calendar
 {
-    const KEY = '22188226c8b09faa84570c37c8e549bc';
+    public $key;
+
+    public function __construct()
+    {
+        $this->key = config('calendar.key');
+    }
 
     public function dayInfo($date)
     {
@@ -29,7 +34,7 @@ class Calendar
         $date = date('Y-n-j', strtotime($date));
         $url = 'http://v.juhe.cn/calendar/day';
         $params = [
-            'key' => self::KEY,
+            'key' => $this->key,
             'date' => $date
         ];
         $result = Curl::get($url, $params);
@@ -45,7 +50,7 @@ class Calendar
     {
         $url = 'http://v.juhe.cn/calendar/month';
         $params = [
-            'key' => self::KEY,
+            'key' => $this->key,
             'year-month' => $yearMonth
         ];
 

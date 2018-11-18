@@ -81,6 +81,7 @@ $app->configure('calendar');
 |
 */
 $app->register(App\Providers\CalendarServiceProvider::class);
+$app->register(App\Providers\GeekbangProvider::class);
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);

@@ -32,3 +32,23 @@ $router->group([
         'uses' => 'WxController@message'
     ]);
 });
+
+$router->group([
+    'prefix' => 'geekbang'
+], function() use ($router){
+    $router->get('index',[
+        'uses' => 'GeekbangController@index'
+    ]);
+    $router->get('article',[
+        'uses' => 'GeekbangController@article'
+    ]);
+    $router->get('provider', [
+        'uses' => 'GeekbangController@provider'
+    ]);
+    $router->post('cookie', [
+        'uses' => 'GeekbangController@cookie'
+    ]);
+    $router->get('updateData', [
+        'uses' => 'GeekbangController@updateData'
+    ]);
+});

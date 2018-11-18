@@ -69,11 +69,13 @@ class GeekbangController extends Controller
         foreach ($providerList as $item) {
             $model->cookie = $item->cookie;
             //验证cookie的有效性
-            if (!$model->validCookie()) {
+            if ($model->validCookie()) {
+                //获取书籍列表
+                $model->updateBookList();
+            } else {
                 $model->setProviderStatus($item->id, 0);
             }
-            //获取书籍列表
-            $model->updateBookList();
+
         }
         Response::json(0);
     }

@@ -28,10 +28,10 @@ class Geekbang
             foreach ($item['list'] as $i) {
                 $bookData = [
                     'title' => $i['title'],
-                    'article_count' => $i['extra']['article_count'],
-                    'book_id' => $i['extra']['column_id'],
-                    'author_name' => $i['extra']['author_name'],
-                    'sub_time' => $i['extra']['sub_time'],
+                    'article_count' => $i['extra']['article_count'] ?? 0,
+                    'book_id' => $i['extra']['column_id'] ?? 0,
+                    'author_name' => $i['extra']['author_name'] ?? '',
+                    'sub_time' => $i['extra']['sub_time'] ?? 0,
                     'category' => $category
                 ];
                 $this->updateBook($bookData);
@@ -200,7 +200,7 @@ class Geekbang
     {
         $url = 'https://account.geekbang.org/serv/v1/user/auth';
         $data = Curl::post($url, array(), $this->getHttpHeader());
-        if (!empty($data) || !empty($data['data']) || empty($data['error'])) {
+        if (!empty($data) && !empty($data['data']) && empty($data['error'])) {
             return true;
         }
         return false;

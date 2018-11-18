@@ -15,7 +15,7 @@
                 <div id="media" class="hidden">
                     <br>
                     <audio controls="controls">
-                        <source id="audio" src="-" type="audio/mpeg">
+                        <source id="audio" src="http://m10.music.126.net/20181118234340/1bf5a5313f54758d7b95f84a882537a1/ymusic/5c79/df47/b803/9664c22c116603fb6fbd11a7823b9328.mp3" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>
                 </div>

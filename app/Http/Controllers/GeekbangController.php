@@ -13,24 +13,43 @@ use App\Http\Model\Curl;
 use App\Http\Model\Geekbang;
 use App\Http\Model\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class GeekbangController extends Controller
 {
+    const INDEX_CACHE_TOKEN = 'geekbang_index_cache_token';
+
+    public $viewParams = [
+        'title' => 'Geek时间分享',
+        'keywords' => 'jrient',
+        'description' => 'jrient service'
+    ];
+
     public function index(Request $request)
     {
+        $articleId = $request->get('id');
+        $bid = $request->get('bid');
+        $data = $this->getIndexCache();
         $model = new Geekbang();
-        $result = $model->getBookList();
-        $articleResult = $model->getArticleList();
-        $articleData = array();
-        foreach ($articleResult as $item) {
-            $articleData[$item->book_id][] = $item;
+        if (empty($data)) {
+            $result = $model->getBookList();
+            $articleResult = $model->getArticleList();
+            $articleData = array();
+            foreach ($articleResult as $item) {
+                $articleData[$item->book_id][] = $item;
+            }
+            $data = array();
+            foreach($result as $item) {
+                $item->article_info = $articleData[$item->book_id];
+                $data[$item->category][] = $item;
+            }
+            $this->setIndexCache($data);
         }
-        $data = array();
-        foreach($result as $item) {
-            $item->article_info = $articleData[$item->book_id];
-            $data[$item->category][] = $item;
-        }
+        $articleInfo = $model->getArticleInfo($articleId);
         $this->viewParams['data'] = $data;
+        $this->viewParams['articleInfo'] = $articleInfo;
+        $this->viewParams['articleId'] = $articleId;
+        $this->viewParams['bid'] = $bid;
         $this->display('Geekbang/index');
     }
 
@@ -75,5 +94,33 @@ class GeekbangController extends Controller
 
         }
         Response::json(0);
+    }
+
+    public function clearCache()
+    {
+        $this->delIndexCache();
+    }
+
+    # ================
+
+    /**
+     * 设置书籍目录缓存
+     * @param $data
+     */
+    private function setIndexCache($data)
+    {
+        Redis::set(self::INDEX_CACHE_TOKEN, json_encode($data));
+        Redis::expire(self::INDEX_CACHE_TOKEN, 24*3600);
+    }
+
+    private function getIndexCache()
+    {
+        $data = Redis::get(self::INDEX_CACHE_TOKEN);
+        return empty($data) ? array() : json_decode($data, false);
+    }
+
+    private function delIndexCache()
+    {
+        Redis::del(self::INDEX_CACHE_TOKEN);
     }
 }

@@ -51,4 +51,7 @@ $router->group([
     $router->get('updateData', [
         'uses' => 'GeekbangController@updateData'
     ]);
+    $router->get('clearCache', [
+        'uses' => 'GeekbangController@clearCache'
+    ]);
 });

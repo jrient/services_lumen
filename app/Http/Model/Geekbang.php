@@ -9,10 +9,15 @@ namespace App\Http\Model;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class Geekbang
 {
+    const ARTICLE_TOKEN = 'geekbang_article_token';
+
     public $cookie;
+
+    public $article_token;
 
     public function updateBookList()
     {
@@ -89,6 +94,8 @@ class Geekbang
             'prev_title' => $geekArticleInfo['neighbors']['left']['article_title'] ?? '',
             'next_title' => $geekArticleInfo['neighbors']['right']['article_title'] ?? ''
         ]);
+        $this->article_token = $articleData['article_id'];
+        $this->delArticleCache();
         if (empty($articleInfo)) {
             $this->saveArticle($articleData);
         } else {
@@ -99,12 +106,12 @@ class Geekbang
 
     public function getBookList()
     {
-        return DB::table('geekbang_book')->get()->toArray();
+        return DB::table('geekbang_book')->orderBy('sub_time', 'desc')->get()->toArray();
     }
 
     public function getArticleList()
     {
-        return DB::table('geekbang_article')->get(['book_id', 'article_id','article_title', 'article_summary'])->toArray();
+        return DB::table('geekbang_article')->orderBy('sub_time', 'desc')->get(['book_id', 'article_id','article_title', 'article_summary'])->toArray();
     }
 
     /**
@@ -114,7 +121,13 @@ class Geekbang
      */
     public function getArticleInfo($articleId)
     {
-        return DB::table('geekbang_article')->where(['article_id' => $articleId])->first();
+        $this->article_token = $articleId;
+        $data = $this->getArticleCache();
+        if (empty($data)) {
+            $data = DB::table('geekbang_article')->where(['article_id' => $articleId])->first();
+            $this->setArticleCache($data);
+        }
+        return $data;
     }
 
     /**
@@ -227,5 +240,21 @@ class Geekbang
             'Content-Type: application/json',
             'Cookie: ' . $this->cookie
         ];
+    }
+
+    private function setArticleCache($data)
+    {
+        Redis::set(self::ARTICLE_TOKEN.$this->article_token,json_encode($data));
+    }
+
+    private function getArticleCache()
+    {
+        $data = Redis::get(self::ARTICLE_TOKEN.$this->article_token);
+        return empty($data) ? array() : json_decode($data, false);
+    }
+
+    private function delArticleCache()
+    {
+        Redis::del(self::ARTICLE_TOKEN.$this->article_token);
     }
 }

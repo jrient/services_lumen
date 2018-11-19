@@ -2,6 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
+    <title><?= $data['title'] ?? "jrient service" ?></title>
+    <meta name="keywords" content="<?= $data['keywords'] ?? '' ?>">
+    <meta name="description" content="<?= $data['description'] ?? '' ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">

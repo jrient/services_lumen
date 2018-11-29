@@ -49,9 +49,9 @@ class Geekbang
     {
         $bookInfo = $this->getBookInfo($bookData['book_id']);
         //检查更新时间 判断是否要更新文章
-        if (!empty($bookInfo) && ($bookData['sub_time'] === $bookInfo->sub_time)) {
-            return true;
-        }
+//        if (!empty($bookInfo) && ($bookData['sub_time'] === $bookInfo->sub_time)) {
+//            return true;
+//        }
         if (empty($bookInfo)) {
             $this->saveBook($bookData);
         } else {
@@ -197,6 +197,29 @@ class Geekbang
     }
 
     /**
+     *  更新 设置了登陆信息的cookie
+     */
+    public function updateCookieByUserPass()
+    {
+        $data = DB::table('geekbang_provider')
+            ->whereBetween('status', [-9, 0])
+            ->where('username_password', '<>', '')
+            ->get();
+        foreach ($data as $item) {
+            $userInfo = json_decode($item->username_password);
+            if (empty($userInfo) || empty($userInfo->username) || empty($userInfo->password)) {
+                continue;
+            }
+            $this->cookie = $this->getCookieByLogin($userInfo->username, $userInfo->password);
+            if ($this->validCookie()) {
+                DB::table('geekbang_provider')->where(['id'=>$item->id])->update(['status' => 1, 'cookie' => $this->cookie]);
+            } else {
+                $this->setProviderStatus($item->id, $item->status-1);
+            }
+        }
+    }
+
+    /**
      * 获取provider list
      */
     public function getProviderList()
@@ -219,6 +242,36 @@ class Geekbang
         return false;
     }
 
+    /**
+     * 登陆获取cookie
+     * @param $phone
+     * @param $password
+     * @return string
+     */
+    public function getCookieByLogin($phone, $password)
+    {
+        $url = 'https://account.geekbang.org/account/ticket/login';
+        $postData = [
+            "appid" => 1,
+            "platform" => 3,
+            "cellphone" => $phone,
+            "password" => $password,
+            "country" => 86,
+            "captcha" => ''
+        ];
+        $data = Curl::postGetResponseHeader($url, json_encode($postData), $this->baseHttpHeader());
+        $cookie = array();
+        $headerName = 'Set-Cookie:';
+        foreach ($data['head'] as $item) {
+            if (strstr($item, $headerName)) {
+                $i = explode(';', $item);
+                $cookie[] = trim(substr(current($i), strlen($headerName)));
+            }
+        }
+        $completeCookie = implode('; ', $cookie);
+        return $completeCookie;
+    }
+
     public function setProviderStatus($id, $status)
     {
         return DB::table('geekbang_provider')->where(['id'=>$id])->update(['status' => $status]);
@@ -235,10 +288,17 @@ class Geekbang
 
     private function getHttpHeader()
     {
+        return array_merge($this->baseHttpHeader(), [
+            'Cookie: ' . $this->cookie
+        ]);
+    }
+
+    private function baseHttpHeader()
+    {
         return [
             'Origin: https://account.geekbang.org',
             'Content-Type: application/json',
-            'Cookie: ' . $this->cookie
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'
         ];
     }
 

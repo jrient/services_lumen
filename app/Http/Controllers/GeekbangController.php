@@ -79,7 +79,6 @@ class GeekbangController extends Controller
         set_time_limit(0);
         $model = new Geekbang();
         $model->updateCookieByUserPass();
-        exit;
         $providerList = $model->getProviderList();
         if (empty($providerList)) {
             Response::json(-1);
@@ -95,6 +94,7 @@ class GeekbangController extends Controller
             }
 
         }
+        $this->delIndexCache();
         Response::json(0);
     }
 

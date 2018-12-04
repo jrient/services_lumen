@@ -15,6 +15,7 @@ class GeekbangCommand extends Command
     public function handle()
     {
         $model = new Geekbang();
+        $model->updateCookieByUserPass();
         $providerList = $model->getProviderList();
         if (empty($providerList)) {
             echo '出错';

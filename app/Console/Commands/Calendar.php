@@ -19,7 +19,7 @@ class Calendar extends Command
      */
     public function handle()
     {
-        $start = date("Y", strtotime("+5 year"));
+        $start = date("Y", strtotime("+1 year"));
         $end   = date("Y", strtotime("+5 year"));
 
         for ($i = $start; $i <= $end; $i++) {

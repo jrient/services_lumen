@@ -32,5 +32,10 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
     <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+
+    <!-- 统计代码 -->
+    <div class="hidden">
+        <script src="https://s96.cnzz.com/z_stat.php?id=1275562640&web_id=1275562640" language="JavaScript"></script>
+    </div>
 </body>
 </html>

@@ -21,8 +21,8 @@ class GeekbangController extends Controller
 
     public $viewParams = [
         'title' => 'Geek时间分享',
-        'keywords' => 'jrient',
-        'description' => 'jrient service'
+        'keywords' => 'jrient geekbang service',
+        'description' => 'jrient geekbang service'
     ];
 
     public function index(Request $request)
